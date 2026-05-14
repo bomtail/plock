@@ -7,12 +7,24 @@ export default function ContactForm() {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
 
+  const [phoneError, setPhoneError] = useState("");
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+    if (name === "phone") {
+      const digits = value.replace(/[^0-9]/g, "");
+      if (digits.length > 11) {
+        setPhoneError("전화번호는 11자리를 초과할 수 없습니다.");
+      } else {
+        setPhoneError("");
+      }
+    }
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (phoneError) return;
     setStatus("loading");
 
     const res = await fetch("/api/contact", {
@@ -81,6 +93,7 @@ export default function ContactForm() {
           placeholder="010-0000-0000"
           className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black dark:border-gray-600 dark:bg-gray-800 dark:text-white"
         />
+        {phoneError && <p className="mt-1 text-xs text-red-500">{phoneError}</p>}
       </div>
 
       <button
