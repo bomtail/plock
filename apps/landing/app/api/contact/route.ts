@@ -22,6 +22,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "전화번호는 11자리를 초과할 수 없습니다." }, { status: 400 });
   }
 
+  if (process.env.NODE_ENV === "development") {
+    console.log("[dev] contact form skipped:", { name, email, phone: normalizedPhone });
+    return NextResponse.json({ name, email, phone: normalizedPhone }, { status: 201 });
+  }
+
   try {
     const [contact] = await db.insert(contacts).values({ name, email, phone: normalizedPhone }).returning();
 
